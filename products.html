@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf8'>
+        <title>Seja Bem Vindo!</title>
+        <link rel="stylesheet" href="css/default.css">
+    </head>
+    <body>
+        <div><h2>Suas Compras Efetuadas:</h2>
+            <br>
+            <table border="1" width="100%">
+                <thead>
+                    <tr>
+                        <th width="10%">FOTO</th>
+                        <th width="10%">NOME</th>
+                        <th width="10%">DESCRIÇÃO</th>
+                        <th width="10%">TAMANHO</th>
+                        <th width="10%">COR</th>
+                        <th width="10%">PREÇO</th>
+                        <th width="10%">QTD.</th>
+                        <th width="10%">SUBTOTAL</th>
+                        <th width="10%">REMOVER</th>
+                    </tr>
+                </thead>
+                <tr><td colspan="9">
+                        <form action="?acao=atualizar" method="post">
+                            <table><tfoot>
+                                    <tr>
+                                        <td><input type="submit" value="Atualizar"></td>
+                                    </tr><tr>
+                                        <td><a href="./index.php">Continuar Comprando</a></td>
+                                    </tr><tr>
+                                        <td><a href="./admin/finalizar.php">Finalizar Pedido</a></td>
+                                </tfoot></table>
+                        </form>
+                    </td></tr>
+                <tbody>
+                    <?php
+                    $total = 0;
+                    if (count($_SESSION['shop']) == 0) {
+                        echo '<tr><td colspan="9"><div class="#">O cesto de compras esta vazio!</td></tr>';
+                    } else {
+                        $conn = new PDO("mysql:host=localhost;dbname=loja", "root", "");
+                        foreach ($_SESSION['shop'] as $id => $qtd) {
+                            $cart = $conn->prepare("SELECT * FROM produtos WHERE  id=$id");
+                            $cart->setFetchMode(PDO::FETCH_ASSOC);
+                            $cart->execute();
+                            while ($linha = $cart->fetch()) {
+                                $foto = $linha['foto'];
+                                $nome = $linha['nome'];
+                                $descricao = $linha['descricao'];
+                                $tamanho = $linha['tamanho'];
+                                $cor = $linha['cor'];
+
+
+
+
+                              $preço = number_format((float) $linha['preço'] * $qtd, 2, ',', '.');
+                              $sub = number_format((float) $linha['preço'] * $qtd, 2, ',', '.');
+                                $sub =  $linha['preço'] * $qtd;
+                                $total += $preço;
+                                $total = number_format($total, 2, ',', '.');
+                                echo '<tr>
+                                             <td><img src = "' . $foto . ' " width = "100px"</td>
+                                             <td>' . $nome . '</td>
+                                             <td>' . $descricao . '</td>
+                                             <td>' . $tamanho . '</td>
+                                             <td>' . $cor . '</td>
+
+                                             <td>R$ ' . $preço . '</td>
+                                             <td><input type="text" size="3" name="prod[' . $id . ']" value="' . $qtd . '" /></td>
+                                             <td>R$ ' . $sub . '</td>
+                                             <td colspan = "9"><a href="?acao=del&id=' . $id . '"><img src="./imagens/remover.png" width="70" height="70" ></td>
+                                             </tr>';
+                            }
+                        }
+                    }
+                    ?>
+            </table>
+        </div>
+    </body>
+</html>
